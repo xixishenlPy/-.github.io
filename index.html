@@ -1,68 +1,33 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Audio Spectrum Visualization</title>
-  <style>
-    canvas {
-      width: 100%;
-      height: 300px;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Audio Visualization</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <audio id="audio-player" controls>
-    <source src="your-audio-file.mp3" type="audio/mpeg">
-    Your browser does not support the audio element.
-  </audio>
-  <canvas id="spectrum-canvas"></canvas>
+  <div class="container">
+    <div class="page" id="page1">
+      <h1>Harmonic Analysis</h1>
+      <div class="visualizations">
+        <!-- Harmonic analysis visualizations will be added here -->
+      </div>
+      <button class="play-all">Play All</button>
+    </div>
+    <div class="page" id="page2">
+      <h1>Pitch Trajectory</h1>
+      <div class="visualizations">
+        <!-- Pitch trajectory visualizations will be added here -->
+      </div>
+      <button class="play-all">Play All</button>
+    </div>
+    <div class="pagination">
+      <button class="prev-page">&lt;</button>
+      <button class="next-page">&gt;</button>
+    </div>
+  </div>
 
-  <script>
-    // 获取音频元素和 Canvas 元素
-    const audioPlayer = document.getElementById('audio-player');
-    const canvas = document.getElementById('spectrum-canvas');
-    const ctx = canvas.getContext('2d');
-
-    // 创建 AudioContext
-    const audioContext = new AudioContext();
-    const source = audioContext.createMediaElementSource(audioPlayer);
-
-    // 创建 AnalyserNode
-    const analyserNode = audioContext.createAnalyser();
-    source.connect(analyserNode);
-    analyserNode.connect(audioContext.destination);
-
-    // 设置 Canvas 大小
-    canvas.width = audioPlayer.clientWidth;
-    canvas.height = 300;
-
-    // 绘制频谱图
-    function drawSpectrum() {
-      requestAnimationFrame(drawSpectrum);
-
-      const bufferLength = analyserNode.frequencyBinCount;
-      const dataArray = new Uint8Array(bufferLength);
-      analyserNode.getByteFrequencyData(dataArray);
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      ctx.fillStyle = 'black';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      const barWidth = (canvas.width / bufferLength) * 2.5;
-      let barHeight;
-      let x = 0;
-
-      for (let i = 0; i < bufferLength; i++) {
-        barHeight = dataArray[i] / 2;
-
-        ctx.fillStyle = `hsl(${i / bufferLength * 360}, 100%, 50%)`;
-        ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
-
-        x += barWidth + 1;
-      }
-    }
-
-    drawSpectrum();
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
