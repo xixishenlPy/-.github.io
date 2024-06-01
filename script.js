@@ -1,38 +1,69 @@
-// JavaScript (app.js)
+// 音频文件路径
+const audioFiles = [
+  'audio/audio1.mp3',
+  'audio/audio2.mp3',
+  'audio/audio3.mp3'
+];
+
+// 页面切换功能
 const waveformBtn = document.getElementById('waveform-btn');
 const pitchBtn = document.getElementById('pitch-btn');
 const waveformContainer = document.getElementById('waveform-container');
 const pitchContainer = document.getElementById('pitch-container');
 
-const audioFiles = ['audio1.mp3', 'audio2.mp3', 'audio3.mp3'];
-
-// Function to create waveform visualization
-function createWaveform(container, audioFile) {
-  // Code to create waveform visualization using D3.js
-}
-
-// Function to create pitch trace visualization
-function createPitchTrace(container, audioFile) {
-  // Code to create pitch trace visualization using D3.js and Pitchfinder
-}
-
-// Event listeners for tab buttons
 waveformBtn.addEventListener('click', () => {
-  waveformBtn.classList.add('active');
-  pitchBtn.classList.remove('active');
-  waveformContainer.classList.remove('hidden');
-  pitchContainer.classList.add('hidden');
+  waveformContainer.style.display = 'block';
+  pitchContainer.style.display = 'none';
 });
 
 pitchBtn.addEventListener('click', () => {
-  pitchBtn.classList.add('active');
-  waveformBtn.classList.remove('active');
-  pitchContainer.classList.remove('hidden');
-  waveformContainer.classList.add('hidden');
+  waveformContainer.style.display = 'none';
+  pitchContainer.style.display = 'block';
 });
 
-// Initialize visualizations
-audioFiles.forEach((file) => {
-  createWaveform(waveformContainer, file);
-  createPitchTrace(pitchContainer, file);
-});
+// 加载并绘制音频可视化
+loadAndDrawAudioVisualizations();
+
+function loadAndDrawAudioVisualizations() {
+  const audioContext = new AudioContext();
+
+  Promise.all(audioFiles.map(file =>
+    fetch(file)
+      .then(response => response.arrayBuffer())
+      .then(buffer => audioContext.decodeAudioData(buffer))
+  ))
+  .then(audioDataList => {
+    // 绘制波形图
+    drawWaveforms(audioDataList, waveformContainer);
+
+    // 绘制音高轨迹
+    drawPitches(audioDataList, pitchContainer);
+  })
+  .catch(error => console.error('Error loading audio files:', error));
+}
+
+function drawWaveforms(audioDataList, container) {
+  const waveformContainers = d3.select(container)
+    .selectAll('.waveform-container')
+    .data(audioDataList)
+    .enter()
+    .append('div')
+    .attr('class', 'waveform-container');
+
+  waveformContainers.each((audioData, i) => {
+    drawWaveform(audioData.getChannelData(0), waveformContainers.node(), i);
+  });
+}
+
+function drawPitches(audioDataList, container) {
+  const pitchContainers = d3.select(container)
+    .selectAll('.pitch-container')
+    .data(audioDataList)
+    .enter()
+    .append('div')
+    .attr('class', 'pitch-container');
+
+  pitchContainers.each((audioData, i) => {
+    drawPitch(audioData.getChannelData(0), pitchContainers.node(), i);
+  });
+}
