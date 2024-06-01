@@ -1,16 +1,26 @@
+<!-- HTML -->
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audio Visualization</title>
-    <link rel="stylesheet" href="style.css">
+  <title>Audio Visualization</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="app">
-        <div id="visualizer"></div>
-        <audio id="audio-player" controls></audio>
+  <div class="container">
+    <h1>Audio Visualization</h1>
+    <div class="tab-buttons">
+      <button id="waveform-btn" class="active">Waveform</button>
+      <button id="pitch-btn">Pitch Trace</button>
     </div>
-    <script src="script.js"></script>
+    <div id="waveform-container" class="active">
+      <!-- Waveform visualizations will be inserted here -->
+    </div>
+    <div id="pitch-container" class="hidden">
+      <!-- Pitch trace visualizations will be inserted here -->
+    </div>
+  </div>
+
+  <script src="https://d3js.org/d3.v6.min.js"></script>
+  <script src="https://unpkg.com/pitchfinder"></script>
+  <script src="app.js"></script>
 </body>
-</html>
