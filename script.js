@@ -1,35 +1,38 @@
-const audioPlayer = document.getElementById('audio-player');
-const visualizer = document.getElementById('visualizer');
+// JavaScript (app.js)
+const waveformBtn = document.getElementById('waveform-btn');
+const pitchBtn = document.getElementById('pitch-btn');
+const waveformContainer = document.getElementById('waveform-container');
+const pitchContainer = document.getElementById('pitch-container');
 
-// Load audio files from the 'audio' folder
 const audioFiles = ['audio1.mp3', 'audio2.mp3', 'audio3.mp3'];
-audioFiles.forEach(file => {
-    const source = document.createElement('source');
-    source.src = `audio/${file}`;
-    audioPlayer.appendChild(source);
-});
 
-// Initialize the visualizer
-initVisualizer(visualizer, audioPlayer);
-
-// Add event listeners for audio playback
-audioPlayer.addEventListener('play', () => {
-    startVisualizer();
-});
-
-audioPlayer.addEventListener('pause', () => {
-    stopVisualizer();
-});
-
-// Visualizer functions
-function initVisualizer(container, audioElement) {
-    // Initialize the visualizer here
+// Function to create waveform visualization
+function createWaveform(container, audioFile) {
+  // Code to create waveform visualization using D3.js
 }
 
-function startVisualizer() {
-    // Start the visualizer
+// Function to create pitch trace visualization
+function createPitchTrace(container, audioFile) {
+  // Code to create pitch trace visualization using D3.js and Pitchfinder
 }
 
-function stopVisualizer() {
-    // Stop the visualizer
-}
+// Event listeners for tab buttons
+waveformBtn.addEventListener('click', () => {
+  waveformBtn.classList.add('active');
+  pitchBtn.classList.remove('active');
+  waveformContainer.classList.remove('hidden');
+  pitchContainer.classList.add('hidden');
+});
+
+pitchBtn.addEventListener('click', () => {
+  pitchBtn.classList.add('active');
+  waveformBtn.classList.remove('active');
+  pitchContainer.classList.remove('hidden');
+  waveformContainer.classList.add('hidden');
+});
+
+// Initialize visualizations
+audioFiles.forEach((file) => {
+  createWaveform(waveformContainer, file);
+  createPitchTrace(pitchContainer, file);
+});
