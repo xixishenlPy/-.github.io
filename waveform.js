@@ -1,19 +1,31 @@
-// waveform.js
-function createWaveform(container, audioFile) {
-  // Code to create waveform visualization using D3.js
-  const svg = d3.select(container)
-    .append('svg')
-    .attr('class', 'waveform');
+function drawWaveform(audioData, container, index) {
+  // 获取 DOM 元素
+  const waveformContainer = d3.select(container)
+    .append('div')
+    .attr('class', 'waveform-item');
 
-  // Load audio file and generate waveform
-  d3.json(`/api/waveform?file=${audioFile}`)
-    .then(data => {
-      // Render waveform visualization
-      svg.selectAll('path')
-        .data(data)
-        .enter()
-        .append('path')
-        .attr('d', d => `M${d.x},${d.y} L${d.x + d.width},${d.y}`)
-        .attr('fill', 'steelblue');
-    });
+  // 设置 SVG 画布的大小
+  const width = waveformContainer.node().getBoundingClientRect().width;
+  const height = 200;
+
+  // 创建 SVG 元素
+  const svg = waveformContainer.append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+  // 缩放函数,将音频数据映射到 SVG 画布上
+  const x = d3.scaleLinear()
+    .range([0, width]);
+  const y = d3.scaleLinear()
+    .range([height, 0]);
+
+  // 绘制波形
+  const line = d3.line()
+    .x((d, i) => x(i / audioData.length * width))
+    .y(d => y(d));
+
+  svg.append("path")
+    .datum(audioData)
+    .attr("class", "waveform")
+    .attr("d", line);
 }
