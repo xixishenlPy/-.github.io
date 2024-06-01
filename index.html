@@ -1,33 +1,27 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Audio Visualization</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Visualization</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="container">
-    <div class="page" id="page1">
-      <h1>Harmonic Analysis</h1>
-      <div class="visualizations">
-        <!-- Harmonic analysis visualizations will be added here -->
-      </div>
-      <button class="play-all">Play All</button>
+    <div id="page1" class="page">
+        <h1>Waveform Visualization</h1>
+        <div id="waveform-container"></div>
+        <button id="play-all1">Play All</button>
     </div>
-    <div class="page" id="page2">
-      <h1>Pitch Trajectory</h1>
-      <div class="visualizations">
-        <!-- Pitch trajectory visualizations will be added here -->
-      </div>
-      <button class="play-all">Play All</button>
-    </div>
-    <div class="pagination">
-      <button class="prev-page">&lt;</button>
-      <button class="next-page">&gt;</button>
-    </div>
-  </div>
 
-  <script src="script.js"></script>
+    <div id="page2" class="page">
+        <h1>Pitch Visualization</h1>
+        <div id="pitch-container"></div>
+        <button id="play-all2">Play All</button>
+    </div>
+
+    <script src="https://unpkg.com/wavesurfer.js"></script>
+    <script src="https://unpkg.com/@tonejs/midi"></script>
+    <script src="script.js"></script>
 </body>
 </html>
