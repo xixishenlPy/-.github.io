@@ -11,8 +11,8 @@ document.getElementById('playAll').addEventListener('click', () => {
 });
 
 const audioFilePaths = [
-    'audio/your_audio_file1.mp3',
-    'audio/your_audio_file2.mp3',
+    'audio/audio1.mp3',
+    'audio/audio2.mp3',
     // Add more file paths as needed
 ];
 
