@@ -16,8 +16,8 @@ const audioFilePaths = [
     // Add more file paths as needed
 ];
 
-audioFilePaths.forEach(filePath => {
-    fetch(filePath)
+Promise.all(audioFilePaths.map(filePath => {
+    return fetch(filePath)
         .then(response => response.arrayBuffer())
         .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
         .then(audioBuffer => {
@@ -28,11 +28,14 @@ audioFilePaths.forEach(filePath => {
 
             audioSrc.connect(analyser);
             analyser.connect(audioContext.destination);
-            audioSrc.start();
         })
         .catch(error => {
             console.error('Error loading audio file:', error);
         });
+}))
+.then(() => {
+    // All audio files have been loaded and decoded, now start playing
+    playAll();
 });
 
 function playAll() {
