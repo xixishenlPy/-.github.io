@@ -1,69 +1,82 @@
-// 音频文件路径
-const audioFiles = [
-  'audio/audio1.mp3',
-  'audio/audio2.mp3',
-  'audio/audio3.mp3'
-];
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+let audioNodes = [];
+let isPlaying = false;
 
-// 页面切换功能
-const waveformBtn = document.getElementById('waveform-btn');
-const pitchBtn = document.getElementById('pitch-btn');
-const waveformContainer = document.getElementById('waveform-container');
-const pitchContainer = document.getElementById('pitch-container');
-
-waveformBtn.addEventListener('click', () => {
-  waveformContainer.style.display = 'block';
-  pitchContainer.style.display = 'none';
+document.getElementById('playAll').addEventListener('click', () => {
+    if (isPlaying) {
+        pauseAll();
+    } else {
+        playAll();
+    }
 });
 
-pitchBtn.addEventListener('click', () => {
-  waveformContainer.style.display = 'none';
-  pitchContainer.style.display = 'block';
+document.querySelectorAll('.waveform').forEach(canvas => {
+    const audioSrc = audioContext.createMediaElementSource(new Audio(canvas.getAttribute('data-src')));
+    const analyser = audioContext.createAnalyser();
+    audioNodes.push({ audioSrc, analyser });
+
+    audioSrc.connect(analyser);
+    audioSrc.connect(audioContext.destination);
+
+    const ctx = canvas.getContext('2d');
+
+    canvas.addEventListener('canplay', () => {
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+        
+        const WIDTH = canvas.width;
+        const HEIGHT = canvas.height;
+
+        function draw() {
+            const drawVisual = requestAnimationFrame(draw);
+            
+            analyser.getByteTimeDomainData(dataArray);
+            
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#FF0000';
+
+            ctx.beginPath();
+
+            const sliceWidth = WIDTH * 1.0 / bufferLength;
+            let x = 0;
+
+            for(let i = 0; i < bufferLength; i++) {
+                const v = dataArray[i] / 128.0;
+                const y = v * HEIGHT / 2;
+                
+                if(i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+
+                x += sliceWidth;
+            }
+
+            ctx.lineTo(canvas.width, canvas.height / 2);
+            ctx.stroke();
+        }
+
+        draw();
+    });
 });
 
-// 加载并绘制音频可视化
-loadAndDrawAudioVisualizations();
-
-function loadAndDrawAudioVisualizations() {
-  const audioContext = new AudioContext();
-
-  Promise.all(audioFiles.map(file =>
-    fetch(file)
-      .then(response => response.arrayBuffer())
-      .then(buffer => audioContext.decodeAudioData(buffer))
-  ))
-  .then(audioDataList => {
-    // 绘制波形图
-    drawWaveforms(audioDataList, waveformContainer);
-
-    // 绘制音高轨迹
-    drawPitches(audioDataList, pitchContainer);
-  })
-  .catch(error => console.error('Error loading audio files:', error));
+function playAll() {
+    audioNodes.forEach(({ audioSrc }) => {
+        audioSrc.mediaElement.play();
+    });
+    isPlaying = true;
 }
 
-function drawWaveforms(audioDataList, container) {
-  const waveformContainers = d3.select(container)
-    .selectAll('.waveform-container')
-    .data(audioDataList)
-    .enter()
-    .append('div')
-    .attr('class', 'waveform-container');
-
-  waveformContainers.each((audioData, i) => {
-    drawWaveform(audioData.getChannelData(0), waveformContainers.node(), i);
-  });
-}
-
-function drawPitches(audioDataList, container) {
-  const pitchContainers = d3.select(container)
-    .selectAll('.pitch-container')
-    .data(audioDataList)
-    .enter()
-    .append('div')
-    .attr('class', 'pitch-container');
-
-  pitchContainers.each((audioData, i) => {
-    drawPitch(audioData.getChannelData(0), pitchContainers.node(), i);
-  });
+function pauseAll() {
+    audioNodes.forEach(({ audioSrc }) => {
+        audioSrc.mediaElement.pause();
+    });
+    isPlaying = false;
 }
