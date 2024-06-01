@@ -10,73 +10,41 @@ document.getElementById('playAll').addEventListener('click', () => {
     }
 });
 
-document.querySelectorAll('.waveform').forEach(canvas => {
-    const audioSrc = audioContext.createMediaElementSource(new Audio(canvas.getAttribute('data-src')));
-    const analyser = audioContext.createAnalyser();
-    audioNodes.push({ audioSrc, analyser });
+const audioFilePaths = [
+    'audio/your_audio_file1.mp3',
+    'audio/your_audio_file2.mp3',
+    // Add more file paths as needed
+];
 
-    audioSrc.connect(analyser);
-    audioSrc.connect(audioContext.destination);
+audioFilePaths.forEach(filePath => {
+    fetch(filePath)
+        .then(response => response.arrayBuffer())
+        .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
+        .then(audioBuffer => {
+            const audioSrc = audioContext.createBufferSource();
+            audioSrc.buffer = audioBuffer;
+            const analyser = audioContext.createAnalyser();
+            audioNodes.push({ audioSrc, analyser });
 
-    const ctx = canvas.getContext('2d');
-
-    canvas.addEventListener('canplay', () => {
-        canvas.width = canvas.offsetWidth;
-        canvas.height = canvas.offsetHeight;
-
-        const bufferLength = analyser.frequencyBinCount;
-        const dataArray = new Uint8Array(bufferLength);
-        
-        const WIDTH = canvas.width;
-        const HEIGHT = canvas.height;
-
-        function draw() {
-            const drawVisual = requestAnimationFrame(draw);
-            
-            analyser.getByteTimeDomainData(dataArray);
-            
-            ctx.fillStyle = '#fff';
-            ctx.fillRect(0, 0, WIDTH, HEIGHT);
-
-            ctx.lineWidth = 2;
-            ctx.strokeStyle = '#FF0000';
-
-            ctx.beginPath();
-
-            const sliceWidth = WIDTH * 1.0 / bufferLength;
-            let x = 0;
-
-            for(let i = 0; i < bufferLength; i++) {
-                const v = dataArray[i] / 128.0;
-                const y = v * HEIGHT / 2;
-                
-                if(i === 0) {
-                    ctx.moveTo(x, y);
-                } else {
-                    ctx.lineTo(x, y);
-                }
-
-                x += sliceWidth;
-            }
-
-            ctx.lineTo(canvas.width, canvas.height / 2);
-            ctx.stroke();
-        }
-
-        draw();
-    });
+            audioSrc.connect(analyser);
+            analyser.connect(audioContext.destination);
+            audioSrc.start();
+        })
+        .catch(error => {
+            console.error('Error loading audio file:', error);
+        });
 });
 
 function playAll() {
     audioNodes.forEach(({ audioSrc }) => {
-        audioSrc.mediaElement.play();
+        audioSrc.start();
     });
     isPlaying = true;
 }
 
 function pauseAll() {
     audioNodes.forEach(({ audioSrc }) => {
-        audioSrc.mediaElement.pause();
+        audioSrc.stop();
     });
     isPlaying = false;
 }
