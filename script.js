@@ -80,3 +80,13 @@ function pauseAll() {
     });
     isPlaying = false;
 }
+document.addEventListener('DOMContentLoaded', function() {
+    let playAllButton = document.getElementById('playAll');
+    let audioElements = document.querySelectorAll('.waveform');
+
+    playAllButton.addEventListener('click', function() {
+        audioElements.forEach(audio => {
+            audio.play();
+        });
+    });
+});
