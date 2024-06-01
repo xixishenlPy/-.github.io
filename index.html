@@ -1,28 +1,23 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <title>Audio Visualization</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <div class="container">
-    <h1>Audio Visualization</h1>
-    <div class="tab-buttons">
-      <button id="waveform-btn" class="active">Waveform</button>
-      <button id="pitch-btn">Pitch Trace</button>
-    </div>
-    <div id="waveform-container" class="active">
-      <!-- Waveform visualizations will be inserted here -->
-    </div>
-    <div id="pitch-container" class="hidden">
-      <!-- Pitch trace visualizations will be inserted here -->
-    </div>
-  </div>
+<html lang="en">
 
-  <script src="https://d3js.org/d3.v6.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/pitchfinder"></script>
-  <script src="waveform.js"></script>
-  <script src="pitch.js"></script>
-  <script src="script.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waveform Visualization</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <h1>Waveform Visualization</h1>
+    <button id="playAll">Play All</button>
+    <div class="waveform-container">
+        <canvas class="waveform" data-src="audio/audio1.mp3"></canvas>
+        <canvas class="waveform" data-src="audio/audio2.mp3"></canvas>
+        <canvas class="waveform" data-src="audio/audio3.mp3"></canvas>
+    </div>
+    <script src="script.js"></script>
 </body>
+
 </html>
