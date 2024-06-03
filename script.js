@@ -1,53 +1,55 @@
-const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-let audioNodes = [];
-let isPlaying = false;
-
-document.getElementById('playAll').addEventListener('click', () => {
-    if (isPlaying) {
-        pauseAll();
-    } else {
-        playAll();
-    }
-});
-
-const audioFilePaths = [
-    'audio/audio1.mp3',
-    'audio/audio2.mp3',
-    // Add more file paths as needed
+// 定义需要可视化的音频文件URL
+const audioUrls = [
+  'https://github.com/your-username/your-repo/blob/main/%E5%8F%A4%E7%AD%9D%E7%89%88.MP3',
+  'https://github.com/your-username/your-repo/blob/main/%E7%94%B5%E5%AD%90%E7%90%B4%E7%89%88.MP3',
+  'https://github.com/your-username/your-repo/blob/main/%E7%AE%A1%E5%AD%90%E7%89%88.MP3'
 ];
 
-Promise.all(audioFilePaths.map(filePath => {
-    return fetch(filePath)
-        .then(response => response.arrayBuffer())
-        .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
-        .then(audioBuffer => {
-            const audioSrc = audioContext.createBufferSource();
-            audioSrc.buffer = audioBuffer;
-            const analyser = audioContext.createAnalyser();
-            audioNodes.push({ audioSrc, analyser });
-
-            audioSrc.connect(analyser);
-            analyser.connect(audioContext.destination);
-        })
-        .catch(error => {
-            console.error('Error loading audio file:', error);
-        });
-}))
-.then(() => {
-    // All audio files have been loaded and decoded, now start playing
-    playAll();
+// 创建Audio元素并加载音频文件
+const audioElements = audioUrls.map(url => {
+  const audio = new Audio(url);
+  return audio;
 });
 
-function playAll() {
-    audioNodes.forEach(({ audioSrc }) => {
-        audioSrc.start();
-    });
-    isPlaying = true;
+// 使用Web Audio API获取波形数据
+const audioContext = new AudioContext();
+const audioSources = audioElements.map(audio => audioContext.createMediaElementSource(audio));
+const analysers = audioSources.map(source => {
+  const analyser = audioContext.createAnalyser();
+  source.connect(analyser);
+  return analyser;
+});
+
+// 将波形数据转换为ECharts所需的格式
+function getWaveform(analyser) {
+  const bufferLength = analyser.fftSize;
+  const waveformData = new Float32Array(bufferLength);
+  analyser.getFloatTimeDomainData(waveformData);
+
+  const waveform = waveformData.map((value, index) => [index, value]);
+  return waveform;
 }
 
-function pauseAll() {
-    audioNodes.forEach(({ audioSrc }) => {
-        audioSrc.stop();
-    });
-    isPlaying = false;
-}
+// 使用ECharts绘制多个波形图
+const myChart = echarts.init(document.getElementById('waveform'));
+myChart.setOption({
+  title: {
+    text: '多音频波形对比'
+  },
+  legend: {
+    data: ['古筝版', '电子琴版', '管子版']
+  },
+  xAxis: {
+    type: 'category',
+    name: 'Time'
+  },
+  yAxis: {
+    type: 'value',
+    name: 'Amplitude'
+  },
+  series: audioSources.map((source, index) => ({
+    type: 'line',
+    name: ['古筝版', '电子琴版', '管子版'][index],
+    data: getWaveform(analysers[index])
+  }))
+});
