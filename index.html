@@ -3,30 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Audio Player</title>
+    <title>High Pitch Trajectory Visualization</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.2.2/dist/echarts.min.js"></script>
+    <style>
+        /* CSS 样式 */
+        .chart-container {
+            width: 800px;
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .chart {
+            width: 100%;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
-    <h1>My Audio Player</h1>
+    <h1>High Pitch Trajectory Visualization</h1>
+    <div class="chart-container">
+        <div class="chart" id="chart1"></div>
+        <div class="chart" id="chart2"></div>
+        <div class="chart" id="chart3"></div>
+    </div>
 
-    <!-- 第一首歌 -->
-    <h2>Song 1</h2>
-    <audio controls>
-        <source src="audio/古筝版.MP3" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
+    <script>
+        // JavaScript 代码
+        // 读取音频文件
+        var audioFiles = [
+            "audio/古筝版.MP3",
+            "audio/吉他版.MP3",
+            "audio/钢琴版.MP3"
+        ];
 
-    <!-- 第二首歌 -->
-    <h2>Song 2</h2>
-    <audio controls>
-        <source src="audio/吉他版.MP3" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
+        // 特征提取
+        var audioData = [];
 
-    <!-- 第三首歌 -->
-    <h2>Song 3</h2>
-    <audio controls>
-        <source src="audio/钢琴版.MP3" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
+        for (var i = 0; i < audioFiles.length; i++) {
+            var audio = new Audio();
+            audio.src = audioFiles[i];
+            audio.preload = "auto";
+            audio.controls = true;
+            audio.autoplay = true;
+
+            audio.addEventListener("loadeddata", function() {
+                var audioContext = new AudioContext();
+                var src = audioContext.createMediaElementSource(this);
+                var analyser = audioContext.createAnalyser();
+
+                src.connect(analyser);
+                analyser.connect(audioContext.destination);
+
+                analyser.fftSize = 256;
+                var bufferLength = analyser.frequencyBinCount;
+                var dataArray = new Uint8Array(bufferLength);
+
+                function draw() {
+                    requestAnimationFrame(draw);
+                    analyser.getByteFrequencyData(dataArray);
+
+                    // 计算高音频率
+                    var highFrequency = 0;
+                    for (var j = 200; j < dataArray.length; j++) {
+                        if (dataArray[j] > dataArray[highFrequency]) {
+                            highFrequency = j;
+                        }
+                    }
+
+                    // 将时间和高音频率添加到数据数组
+                    audioData[i].push([audio.currentTime, highFrequency]);
+                }
+
+                draw();
+            });
+
+            audioData.push([]);
+        }
+
+        // 绘制图表
+        var myChart1 = echarts.init(document.getElementById('chart1'));
+        var myChart2 = echarts.init(document.getElementById('chart2'));
+        var myChart3 = echarts.init(document.getElementById('chart3'));
+
+        var option = {
+            xAxis: {
+                type: 'value',
+                axisLabel: {
+                    formatter: '{value} s' // 时间轴格式
+                }
+            },
+            yAxis: {
+                type: 'value',
+                axisLabel: {
+                    formatter: '{value} Hz' // 频率轴格式
+                }
+            },
+            series: [
+                {
+                    type: 'line',
+                    data: audioData[0]
+                },
+                {
+                    type: 'line',
+                    data: audioData[1]
+                },
+                {
+                    type: 'line',
+                    data: audioData[2]
+                }
+            ]
+        };
+
+        myChart1.setOption(option);
+        myChart2.setOption(option);
+        myChart3.setOption(option);
+    </script>
 </body>
 </html>
