@@ -3,124 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>音频可视化示例</title>
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.3.2/dist/echarts.min.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .chart {
-            width: 400px;
-            height: 300px;
-            margin: 20px;
-        }
-        button {
-            display: block;
-            margin: 20px auto;
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-    </style>
+    <title>My Audio Player</title>
 </head>
 <body>
-    <div class="container">
-        <div id="chart1" class="chart"></div>
-        <div id="chart2" class="chart"></div>
-        <div id="chart3" class="chart"></div>
-    </div>
-    <button id="playAllButton">Play All</button>
-    <audio id="audio1" src="https://raw.githubusercontent.com/xixishenlPy/sound.github.io/main/audio/古筝版.MP3" preload="auto" muted></audio>
-    <audio id="audio2" src="https://raw.githubusercontent.com/xixishenlPy/sound.github.io/main/audio/吉他版.MP3" preload="auto" muted></audio>
-    <audio id="audio3" src="https://raw.githubusercontent.com/xixishenlPy/sound.github.io/main/audio/钢琴版.MP3" preload="auto" muted></audio>
-    <script>
-        var audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    <h1>My Audio Player</h1>
 
-        var chart1 = echarts.init(document.getElementById('chart1'));
-        var chart2 = echarts.init(document.getElementById('chart2'));
-        var chart3 = echarts.init(document.getElementById('chart3'));
+    <!-- 第一首歌 -->
+    <h2>Song 1</h2>
+    <audio controls>
+        <source src="audio/古筝版.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
 
-        var analyser1 = audioContext.createAnalyser();
-        var analyser2 = audioContext.createAnalyser();
-        var analyser3 = audioContext.createAnalyser();
+    <!-- 第二首歌 -->
+    <h2>Song 2</h2>
+    <audio controls>
+        <source src="audio/吉他版.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
 
-        var audio1 = document.getElementById('audio1');
-        var audio2 = document.getElementById('audio2');
-        var audio3 = document.getElementById('audio3');
-
-        var playAllButton = document.getElementById('playAllButton');
-
-        playAllButton.addEventListener('click', function() {
-            if (audioContext.state === 'suspended') {
-                audioContext.resume();
-            }
-
-            audio1.muted = false;
-            audio2.muted = false;
-            audio3.muted = false;
-
-            audio1.play();
-            audio2.play();
-            audio3.play();
-        });
-
-        setupAudio(audio1, analyser1, chart1);
-        setupAudio(audio2, analyser2, chart2);
-        setupAudio(audio3, analyser3, chart3);
-
-        function setupAudio(audio, analyser, chart) {
-            var source = audioContext.createMediaElementSource(audio);
-            source.connect(analyser);
-            analyser.connect(audioContext.destination);
-
-            analyser.fftSize = 2048;
-            var bufferLength = analyser.frequencyBinCount;
-            var dataArray = new Uint8Array(bufferLength);
-
-            var option = {
-                xAxis: {
-                    type: 'category',
-                    boundaryGap: false,
-                    data: Array.from({ length: bufferLength }, (_, i) => i)
-                },
-                yAxis: {
-                    type: 'value',
-                    min: 0,
-                    max: 255
-                },
-                series: [{
-                    data: [],
-                    type: 'line',
-                    smooth: true
-                }]
-            };
-
-            chart.setOption(option);
-
-            function updateChart() {
-                requestAnimationFrame(updateChart);
-                analyser.getByteFrequencyData(dataArray);
-                chart.setOption({
-                    series: [{
-                        data: Array.from(dataArray)
-                    }]
-                });
-            }
-
-            updateChart();
-        }
-    </script>
+    <!-- 第三首歌 -->
+    <h2>Song 3</h2>
+    <audio controls>
+        <source src="audio/钢琴版.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
 </body>
-</html
+</html>
