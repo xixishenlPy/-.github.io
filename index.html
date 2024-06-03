@@ -117,14 +117,15 @@
             chart.setOption(option);
 
             function updateChart() {
-                requestAnimationFrame(updateChart);
-                analyser.getByteTimeDomainData(dataArray);
-                chart.setOption({
-                    series: [{
-                        data: Array.from(dataArray)
-                    }]
-                });
+            requestAnimationFrame(updateChart);
+            analyser.getByteFrequencyData(dataArray); // 使用 getByteFrequencyData 方法
+            chart.setOption({
+                series: [{
+                    data: Array.from(dataArray)
+                }]
+            });
             }
+
 
             updateChart();
         }
