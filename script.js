@@ -1,55 +1,71 @@
-// 定义需要可视化的音频文件URL
-const audioUrls = [
-  'https://github.com/xixishenlPy/sound.github.io/blob/main/audio/古筝版.MP3',
-  'https://github.com/xixishenlPy/sound.github.io/blob/main/audio/吉他版.MP3',
-  'https://github.com/xixishenlPy/sound.github.io/blob/main/audio/钢琴版.MP3'
-];
+var audioContext = new AudioContext();
 
-// 创建Audio元素并加载音频文件
-const audioElements = audioUrls.map(url => {
-  const audio = new Audio(url);
-  return audio;
+var chart1 = echarts.init(document.getElementById('chart1'));
+var chart2 = echarts.init(document.getElementById('chart2'));
+var chart3 = echarts.init(document.getElementById('chart3'));
+
+var analyser1 = audioContext.createAnalyser();
+var analyser2 = audioContext.createAnalyser();
+var analyser3 = audioContext.createAnalyser();
+
+var audio1 = document.getElementById('audio1');
+var audio2 = document.getElementById('audio2');
+var audio3 = document.getElementById('audio3');
+
+var playAllButton = document.getElementById('playAllButton');
+
+playAllButton.addEventListener('click', function() {
+    audio1.play();
+    audio2.play();
+    audio3.play();
 });
 
-// 使用Web Audio API获取波形数据
-const audioContext = new AudioContext();
-const audioSources = audioElements.map(audio => audioContext.createMediaElementSource(audio));
-const analysers = audioSources.map(source => {
-  const analyser = audioContext.createAnalyser();
-  source.connect(analyser);
-  return analyser;
-});
+setupAudio(audio1, analyser1, chart1);
+setupAudio(audio2, analyser2, chart2);
+setupAudio(audio3, analyser3, chart3);
 
-// 将波形数据转换为ECharts所需的格式
-function getWaveform(analyser) {
-  const bufferLength = analyser.fftSize;
-  const waveformData = new Float32Array(bufferLength);
-  analyser.getFloatTimeDomainData(waveformData);
-
-  const waveform = waveformData.map((value, index) => [index, value]);
-  return waveform;
+function setupAudio(audio, analyser, chart) {
+    audio.addEventListener('canplay', function() {
+        var source = audioContext.createMediaElementSource(audio);
+        source.connect(analyser);
+        analyser.connect(audioContext.destination);
+        drawWaveform(analyser, chart);
+    });
 }
 
-// 使用ECharts绘制多个波形图
-const myChart = echarts.init(document.getElementById('waveform'));
-myChart.setOption({
-  title: {
-    text: '多音频波形对比'
-  },
-  legend: {
-    data: ['古筝版', '吉他版', '钢琴版']
-  },
-  xAxis: {
-    type: 'category',
-    name: 'Time'
-  },
-  yAxis: {
-    type: 'value',
-    name: 'Amplitude'
-  },
-  series: audioSources.map((source, index) => ({
-    type: 'line',
-    name: ['古筝版', '吉他版', '钢琴版'][index],
-    data: getWaveform(analysers[index])
-  }))
-});
+function drawWaveform(analyser, chart) {
+    var bufferLength = analyser.frequencyBinCount;
+    var dataArray = new Uint8Array(bufferLength);
+    
+    var option = {
+        xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            data: Array.from({ length: bufferLength }).map((_, i) => i)
+        },
+        yAxis: {
+            type: 'value',
+            min: 0,
+            max: 255
+        },
+        series: [{
+            data: [],
+            type: 'line',
+            smooth: true
+        }]
+    };
+
+    chart.setOption(option);
+
+    function updateChart() {
+        requestAnimationFrame(updateChart);
+        analyser.getByteTimeDomainData(dataArray);
+        chart.setOption({
+            series: [{
+                data: Array.from(dataArray)
+            }]
+        });
+    }
+
+    updateChart();
+}
