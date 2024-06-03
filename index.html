@@ -73,13 +73,24 @@
         setupAudio(audio3, analyser3, chart3);
 
         function setupAudio(audio, analyser, chart) {
-            audio.addEventListener('canplay', function() {
-                var source = audioContext.createMediaElementSource(audio);
-                source.connect(analyser);
-                analyser.connect(audioContext.destination);
-                drawWaveform(analyser, chart);
-            });
+    audio.addEventListener('canplay', function() {
+        // 如果音频已连接到 MediaElementSourceNode，则断开连接
+        if (audio.sourceNode) {
+            audio.sourceNode.disconnect();
         }
+        
+        // 创建新的 MediaElementSourceNode
+        var source = audioContext.createMediaElementSource(audio);
+        source.connect(analyser);
+        analyser.connect(audioContext.destination);
+        
+        // 将新的 MediaElementSourceNode 保存在音频元素上
+        audio.sourceNode = source;
+
+        // 绘制波形图
+        drawWaveform(analyser, chart);
+    });
+}
 
         function drawWaveform(analyser, chart) {
             var bufferLength = analyser.frequencyBinCount;
