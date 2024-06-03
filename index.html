@@ -46,7 +46,7 @@
     <audio id="audio2" src="https://github.com/xixishenlPy/sound.github.io/raw/main/audio/%E5%90%89%E4%BB%96%E7%89%88.MP3" preload="auto" muted></audio>
     <audio id="audio3" src="https://github.com/xixishenlPy/sound.github.io/raw/main/audio/%E9%92%A2%E7%90%B4%E7%89%88.MP3" preload="auto" muted></audio>
     <script>
-        var audioContext = new AudioContext();
+        var audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
         var chart1 = echarts.init(document.getElementById('chart1'));
         var chart2 = echarts.init(document.getElementById('chart2'));
@@ -63,6 +63,14 @@
         var playAllButton = document.getElementById('playAllButton');
 
         playAllButton.addEventListener('click', function() {
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+
+            audio1.muted = false;
+            audio2.muted = false;
+            audio3.muted = false;
+
             audio1.play();
             audio2.play();
             audio3.play();
@@ -73,27 +81,19 @@
         setupAudio(audio3, analyser3, chart3);
 
         function setupAudio(audio, analyser, chart) {
-            // 创建新的 MediaElementSourceNode
             var source = audioContext.createMediaElementSource(audio);
             source.connect(analyser);
             analyser.connect(audioContext.destination);
-            
-            // 将新的 MediaElementSourceNode 保存在音频元素上
-            audio.sourceNode = source;
 
-            // 绘制波形图
-            drawWaveform(analyser, chart);
-        }
-
-        function drawWaveform(analyser, chart) {
+            analyser.fftSize = 2048;
             var bufferLength = analyser.frequencyBinCount;
             var dataArray = new Uint8Array(bufferLength);
-            
+
             var option = {
                 xAxis: {
                     type: 'category',
                     boundaryGap: false,
-                    data: Array.from({ length: bufferLength }).map((_, i) => i)
+                    data: Array.from({ length: bufferLength }, (_, i) => i)
                 },
                 yAxis: {
                     type: 'value',
@@ -111,7 +111,7 @@
 
             function updateChart() {
                 requestAnimationFrame(updateChart);
-                analyser.getByteFrequencyData(dataArray); // 使用 getByteFrequencyData 方法
+                analyser.getByteFrequencyData(dataArray);
                 chart.setOption({
                     series: [{
                         data: Array.from(dataArray)
@@ -123,4 +123,4 @@
         }
     </script>
 </body>
-</html>
+</html
