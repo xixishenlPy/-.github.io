@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>时域图可视化示例</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.3.2/dist/echarts.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin-top: 20px;
+        }
+        .chart-container {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .chart {
+            width: 600px;
+            height: 200px;
+        }
+        .progress-bar-container {
+            position: relative;
+            margin-left: 10px;
+        }
+        .progress-bar {
+            width: 100px;
+            height: 10px;
+            background-color: #f0f0f0;
+            position: relative;
+        }
+        .progress-bar-inner {
+            height: 100%;
+            background-color: #007bff;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+        }
+        .play-button {
+            cursor: pointer;
+            background-color: transparent;
+            border: none;
+            font-size: 16px;
+            color: #007bff;
+            margin-top: 10px;
+            position: relative;
+            margin-left: 10px;
+        }
+        .chart-name {
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #3498db;
+        }
+    </style>
+</head>
+<body>
+    <h1>时域图可视化</h1>
+    <button id="playAllButton">全部播放</button>
+    <div class="container">
+        <div class="chart-container" id="container1">
+            <span class="chart-name">钢琴</span>
+            <div id="chart1" class="chart"></div>
+            <button id="playButton1" class="play-button">播放</button>
+            <div class="progress-bar-container">
+                <div class="progress-bar">
+                    <div id="progress1" class="progress-bar-inner"></div>
+                </div>
+            </div>
+        </div>
+        <div class="chart-container" id="container2">
+            <span class="chart-name">古筝</span>
+            <div id="chart2" class="chart"></div>
+            <button id="playButton2" class="play-button">播放</button>
+            <div class="progress-bar-container">
+                <div class="progress-bar">
+                    <div id="progress2" class="progress-bar-inner"></div>
+                </div>
+            </div>
+        </div>
+        <div class="chart-container" id="container3">
+            <span class="chart-name">吉他</span>
+            <div id="chart3" class="chart"></div>
+            <button id="playButton3" class="play-button">播放</button>
+            <div class="progress-bar-container">
+                <div class="progress-bar">
+                    <div id="progress3" class="progress-bar-inner"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <audio id="audio1" src="audio/钢琴版.MP3" preload="auto" muted></audio>
+    <audio id="audio2" src="audio/古筝版.MP3" preload="auto" muted></audio>
+    <audio id="audio3" src="audio/吉他版.MP3" preload="auto" muted></audio>
+    <div class="navigation">
+        <a href="frequency.html">上一页</a>
+        <a href="rhythm.html">下一页</a>
+    </div>
+    <script>
+        var audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        var analyser1 = audioContext.createAnalyser();
+        var analyser2 = audioContext.createAnalyser();
+        var analyser3 = audioContext.createAnalyser();
+
+        var audio1 = document.getElementById('audio1');
+        var audio2 = document.getElementById('audio2');
+        var audio3 = document.getElementById('audio3');
+
+        var playAllButton = document.getElementById('playAllButton');
+
+        var chartOptions = {
+            xAxis: {
+                type: 'category',
+                name: '时间 (s)',
+                boundaryGap: false,
+                data: []
+            },
+            yAxis: {
+                type: 'value',
+                name: '振幅',
+                min: -0.4, // Change min and max here
+                max: 0.4
+            },
+            series: [{
+                type: 'line',
+                smooth: true,
+                data: []
+            }]
+        };
+
+        var charts = [];
+        var progressBars = [];
+        var playButtons = [];
+        var audioElements = [audio1, audio2, audio3];
+        var analysers = [analyser1, analyser2, analyser3];
+
+        for (var i = 0; i < audioElements.length; i++) {
+            var chart = echarts.init(document.getElementById('chart' + (i + 1)));
+            chart.setOption(chartOptions);
+            charts.push(chart);
+
+            var progressBar = document.getElementById('progress' + (i + 1));
+            progressBars.push(progressBar);
+
+            var playButton = document.getElementById('playButton' + (i + 1));
+            playButtons.push(playButton);
+
+            setupAudio(audioElements[i], analysers[i], chart, progressBar, playButton);
+        }
+
+        playAllButton.addEventListener('click', function() {
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+
+            audioElements.forEach(function(audio) {
+                audio.muted = false;
+                audio.play();
+            });
+        });
+
+        function setupAudio(audio, analyser, chart, progressBar, playButton) {
+            var source = audioContext.createMediaElementSource(audio);
+            source.connect(analyser);
+            analyser.connect(audioContext.destination);
+
+            var bufferLength = analyser.frequencyBinCount;
+            var dataArray = new Uint8Array(bufferLength);
+
+            playButton.addEventListener('click', function() {
+                if (audio.paused) {
+                    audio.play();
+                    playButton.textContent = "暂停";
+                } else {
+                    audio.pause();
+                    playButton.textContent = "播放";
+                }
+            });
+
+            function updateChart() {
+                requestAnimationFrame(updateChart);
+                analyser.getByteTimeDomainData(dataArray);
+
+                var currentTime = audio.currentTime;
+                var duration = audio.duration;
+                var progress = (currentTime / duration) * 100;
+
+                progressBar.style.width = progress + "%";
+
+                var xAxisData = [];
+                for (var i = 0; i < bufferLength; i++) {
+                    xAxisData.push(currentTime + i / audioContext.sampleRate);
+                }
+
+                chart.setOption({
+                    xAxis: {
+                        data: xAxisData
+                    },
+                    series: [{
+                        data: Array.from(dataArray).map(value => (value / 128) - 1) // Scale the values to -1 to 1 range
+                    }]
+                });
+            }
+
+            updateChart();
+        }
+    </script>
+</body>
+</html>

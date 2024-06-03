@@ -1,0 +1,88 @@
+body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    background-image: url('background.png');
+    background-size: cover;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: 100vh;
+    margin: 0;
+    overflow: auto;
+}
+
+h1 {
+    color: #2c3e50;
+}
+
+.controls {
+    margin-bottom: 20px;
+}
+
+.song-controls {
+    margin: 20px 0;
+    position: relative;
+    width: 90%;
+    max-width: 1000px;
+    display: flex;
+    align-items: center;
+}
+
+button {
+    background-color: #2980b9;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 10px;
+}
+
+button:hover {
+    background-color: #3498db;
+}
+
+canvas {
+    border: 2px solid #34495e;
+    border-radius: 10px;
+    background-color: #fff;
+    display: block;
+    margin-left: 10px;
+}
+
+#loadingMessage {
+    display: none;
+    color: #e74c3c;
+    font-size: 1.2em;
+    margin-top: 20px;
+}
+
+.label {
+    margin-right: 10px;
+}
+
+.navigation {
+    margin-top: 20px;
+}
+
+.navigation a {
+    margin: 0 20px;
+    font-size: 18px;
+    color: #2980b9;
+    text-decoration: none;
+}
+
+.navigation a:hover {
+    color: #3498db;
+}
+
+.upload-section {
+    margin-bottom: 20px;
+}
+
+.visualization-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}

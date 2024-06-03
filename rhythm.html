@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>节奏图可视化</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px; /* Added gap between elements */
+        }
+        .song-controls {
+            margin: 20px 0;
+            position: relative;
+            width: 90%;
+            max-width: 1000px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* Adjusted alignment */
+            gap: 20px; /* Added gap between elements */
+        }
+        button {
+            background-color: #2980b9;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #3498db;
+        }
+        .canvas-container {
+            overflow-x: auto;
+            flex-grow: 1; /* Ensure canvas-container takes up remaining space */
+            border: 2px solid #34495e;
+            border-radius: 10px;
+            background-color: #fff;
+        }
+        canvas {
+            display: block;
+        }
+        #loadingMessage {
+            display: none;
+            color: #e74c3c;
+            font-size: 1.2em;
+        }
+        .label {
+            font-size: 20px; /* Increased font size */
+            font-weight: bold; /* Added bold style */
+        }
+    </style>
+</head>
+<body>
+    <h1>节奏图可视化</h1>
+    <div class="controls">
+        <button id="startButton">开始可视化</button>
+        <div id="loadingMessage">加载中...</div>
+    </div>
+    <div class="song-controls">
+        <div class="label">A Comme Amour</div>
+        <button id="playButton1">播放</button>
+        <div class="canvas-container">
+            <canvas id="canvas1" height="100"></canvas>
+        </div>
+    </div>
+    <div class="song-controls">
+        <div class="label">windy hill</div>
+        <button id="playButton2">播放</button>
+        <div class="canvas-container">
+            <canvas id="canvas2" height="100"></canvas>
+        </div>
+    </div>
+    <div class="navigation">
+        <a href="waveform.html">上一页</a>
+        <a href="combined.html">下一页</a>
+    </div>
+    <script src="script4.js"></script>
+</body>
+</html>

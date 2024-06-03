@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>首页</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-image: url('cover.png');
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative
+        }
+
+        button {
+            background-color: rgb(244,164,96); 
+            color: white;
+            font-size: 36px;
+            padding: 10px 25px;
+            border: none;
+            cursor: pointer;
+	    position: absolute; /* 设置绝对定位 */
+            bottom: calc(100vh / 4); /
+        }
+    </style>
+</head>
+<body>
+    <button onclick="window.location.href='spectrogram.html'">欢迎</button>
+</body>
+</html>

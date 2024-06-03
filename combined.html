@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>不妨试一试</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>不妨试一试</h1>
+    <div class="upload-section">
+        <label for="audioUpload">上传音频文件：</label>
+        <input type="file" id="audioUpload" accept="audio/*">
+    </div>
+    <div class="controls">
+        <button id="startButton">开始可视化</button>
+        <button id="playButton">播放</button>
+    </div>
+    <div class="visualization-section">
+        <div class="song-controls">
+            <div class="label">频谱图</div>
+            <canvas id="spectrumCanvas" class="spectrum-canvas" height="100"></canvas>
+        </div>
+        <div class="song-controls">
+            <div class="label">节奏图</div>
+            <canvas id="rhythmCanvas" class="rhythm-canvas" height="100"></canvas>
+        </div>
+    </div>
+    <div class="navigation">
+        <a href="rhythm.html">上一页</a>
+    </div>
+    <script src="script1.js" type="module"></script>
+    <script src="script2.js" type="module"></script>
+</body>
+</html>

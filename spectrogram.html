@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>频谱图可视化</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>频谱图可视化</h1>
+    <div class="controls">
+        <button id="startButton">开始可视化</button>
+        <div id="loadingMessage">加载中...</div>
+    </div>
+    <div class="song-controls">
+        <div class="label">钢琴</div>
+        <button id="playButton1">播放</button>
+        <canvas id="canvas1" height="100"></canvas>
+    </div>
+    <div class="song-controls">
+        <div class="label">古筝</div>
+        <button id="playButton2">播放</button>
+        <canvas id="canvas2" height="100"></canvas>
+    </div>
+    <div class="song-controls">
+        <div class="label">吉他</div>
+        <button id="playButton3">播放</button>
+        <canvas id="canvas3" height="100"></canvas>
+    </div>
+    <div class="navigation">
+        <a href="frequency.html">下一页</a>
+    </div>
+    <script src="script3.js"></script>
+</body>
+</html>

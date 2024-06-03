@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>频域图可视化示例</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.3.2/dist/echarts.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin-top: 20px;
+        }
+        .chart-container {
+            display: flex;
+            flex-direction: row; /* Changed direction to row */
+            align-items: center;
+            margin-bottom: 10px; /* Reduced margin */
+            position: relative;
+        }
+        .chart {
+            width: 400px;
+            height: 200px; /* Adjusted height */
+        }
+        .progress-bar-container {
+            position: relative; /* Added container for progress bar */
+            margin-left: 10px; /* Added margin */
+        }
+        .progress-bar {
+            width: 100px; /* Adjusted width */
+            height: 10px;
+            background-color: #f0f0f0;
+            position: absolute;
+            top: 50%; /* Adjusted position */
+            left: 100%; /* Adjusted position */
+            transform: translateY(-50%); /* Adjusted position */
+        }
+        .progress-bar-inner {
+            height: 100%;
+            background-color: #007bff;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+        }
+        .play-button {
+            cursor: pointer;
+            background-color: transparent;
+            border: none;
+            font-size: 16px;
+            color: #007bff;
+            margin-left: 10px; /* Added margin */
+        }
+        .chart-name {
+            font-size: 14px;
+            margin-right: 10px; /* Added margin */
+        }
+        button:hover {
+            background-color: #3498db;
+        }
+    </style>
+</head>
+<body>
+    <h1>频域图可视化</h1>
+    <button id="playAllButton">全部播放</button>
+    <div class="container">
+        <div class="chart-container" id="container1">
+            <span class="chart-name">钢琴</span> <!-- Added chart name -->
+            <div id="chart1" class="chart"></div>
+            <div class="progress-bar-container">
+                <button id="playButton1" class="play-button">播放</button>
+                <div class="progress-bar">
+                    <div id="progress1" class="progress-bar-inner"></div>
+                </div>
+            </div>
+        </div>
+        <div class="chart-container" id="container2">
+            <span class="chart-name">古筝</span> <!-- Added chart name -->
+            <div id="chart2" class="chart"></div>
+            <div class="progress-bar-container">
+                <button id="playButton2" class="play-button">播放</button>
+                <div class="progress-bar">
+                    <div id="progress2" class="progress-bar-inner"></div>
+                </div>
+            </div>
+        </div>
+        <div class="chart-container" id="container3">
+            <span class="chart-name">吉他</span> <!-- Added chart name -->
+            <div id="chart3" class="chart"></div>
+            <div class="progress-bar-container">
+                <button id="playButton3" class="play-button">播放</button>
+                <div class="progress-bar">
+                    <div id="progress3" class="progress-bar-inner"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <audio id="audio1" src="audio/钢琴版.MP3" preload="auto" muted></audio>
+    <audio id="audio2" src="audio/古筝版.MP3" preload="auto" muted></audio>
+    <audio id="audio3" src="audio/吉他版.MP3" preload="auto" muted></audio>
+    <div class="navigation">
+        <a href="spectrogram.html">上一页</a>
+        <a href="waveform.html">下一页</a>
+    </div>
+    <script>
+        var audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        var chart1 = echarts.init(document.getElementById('chart1'));
+        var chart2 = echarts.init(document.getElementById('chart2'));
+        var chart3 = echarts.init(document.getElementById('chart3'));
+
+        var analyser1 = audioContext.createAnalyser();
+        var analyser2 = audioContext.createAnalyser();
+        var analyser3 = audioContext.createAnalyser();
+
+        var audio1 = document.getElementById('audio1');
+        var audio2 = document.getElementById('audio2');
+        var audio3 = document.getElementById('audio3');
+
+        var playAllButton = document.getElementById('playAllButton');
+
+        playAllButton.addEventListener('click', function() {
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+
+            audio1.muted = false;
+            audio2.muted = false;
+            audio3.muted = false;
+
+            audio1.play();
+            audio2.play();
+            audio3.play();
+        });
+
+        setupAudio(audio1, analyser1, chart1, document.getElementById('progress1'), document.getElementById('playButton1'));
+        setupAudio(audio2, analyser2, chart2, document.getElementById('progress2'), document.getElementById('playButton2'));
+        setupAudio(audio3, analyser3, chart3, document.getElementById('progress3'), document.getElementById('playButton3'));
+
+        function setupAudio(audio, analyser, chart, progressBar, playButton) {
+            var source = audioContext.createMediaElementSource(audio);
+            source.connect(analyser);
+            analyser.connect(audioContext.destination);
+
+            analyser.fftSize = 2048;
+            var bufferLength = analyser.frequencyBinCount;
+            var dataArray = new Uint8Array(bufferLength);
+
+            var option = {
+                xAxis: {
+                    type: 'category',
+                    name: '频率', // Added x-axis name
+                    boundaryGap: false,
+                    data: Array.from({ length: bufferLength }, (_, i) => i)
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '响度', // Added y-axis name
+                    min: 0,
+                    max: 255
+                },
+                series: [{
+                    data: [],
+                    type: 'line',
+                    smooth: true
+                }]
+            };
+
+            chart.setOption(option);
+
+            playButton.addEventListener('click', function() {
+                if (audio.paused) {
+                    audio.play();
+                    playButton.textContent = "暂停";
+                } else {
+                    audio.pause();
+                    playButton.textContent = "播放";
+                }
+            });
+
+            function updateChart() {
+                requestAnimationFrame(updateChart);
+                analyser.getByteFrequencyData(dataArray);
+                chart.setOption({
+                    series: [{
+                        data: Array.from(dataArray)
+                    }]
+                });
+
+                if (!audio.paused) {
+                    var progress = (audio.currentTime / audio.duration) * 100;
+                    progressBar.style.width = progress + "%";
+                }
+            }
+
+            updateChart();
+        }
+    </script>
+</body>
+</html>
