@@ -1,8 +1,8 @@
 // 定义需要可视化的音频文件URL
 const audioUrls = [
-  'https://github.com/your-username/your-repo/blob/main/%E5%8F%A4%E7%AD%9D%E7%89%88.MP3',
-  'https://github.com/your-username/your-repo/blob/main/%E7%94%B5%E5%AD%90%E7%90%B4%E7%89%88.MP3',
-  'https://github.com/your-username/your-repo/blob/main/%E7%AE%A1%E5%AD%90%E7%89%88.MP3'
+  'https://github.com/xixishenlPy/sound.github.io/blob/main/audio/古筝版.MP3',
+  'https://github.com/xixishenlPy/sound.github.io/blob/main/audio/吉他版.MP3',
+  'https://github.com/xixishenlPy/sound.github.io/blob/main/audio/钢琴版.MP3'
 ];
 
 // 创建Audio元素并加载音频文件
@@ -37,7 +37,7 @@ myChart.setOption({
     text: '多音频波形对比'
   },
   legend: {
-    data: ['古筝版', '电子琴版', '管子版']
+    data: ['古筝版', '吉他版', '钢琴版']
   },
   xAxis: {
     type: 'category',
@@ -49,7 +49,7 @@ myChart.setOption({
   },
   series: audioSources.map((source, index) => ({
     type: 'line',
-    name: ['古筝版', '电子琴版', '管子版'][index],
+    name: ['古筝版', '吉他版', '钢琴版'][index],
     data: getWaveform(analysers[index])
   }))
 });
